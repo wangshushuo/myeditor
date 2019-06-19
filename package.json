@@ -1,0 +1,12 @@
+{
+  "name": "myeditor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "sudo docker container run --rm --name myblog -p 8080:80  --volume '$PWD':/usr/share/nginx/html nginx"
+  },
+  "author": "",
+  "license": "ISC"
+}

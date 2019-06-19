@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="./monaco-editor/min/vs/editor/editor.main.css">
+    <style>
+        body {
+            margin: 0.6vh 1vh;
+        }
+
+        .editorcontainer {
+            position: fixed;
+            top: 5vh;
+            left: 0;
+            width: 100vw;
+            height: 95vh;
+            border: 1px solid grey;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div><button onclick="save()">save</button></div>
+    <div id="container" class="editorcontainer"></div>
+
+    <script>var require = { paths: { 'vs': './monaco-editor/min/vs' } };</script>
+    <script src="./monaco-editor/min/vs/loader.js"></script>
+    <script src="./monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+    <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
+
+    <script>
+        var editor = monaco.editor.create(document.getElementById('container'), {
+            value: [
+                '# 1',
+                '## 2',
+                '`alert(3)` '
+            ].join('\n'),
+            language: 'markdown'
+        });
+
+        function save() {
+            const value = editor.getValue();
+        }
+
+    </script>
+
+</body>
+
+</html>
