@@ -8,5 +8,11 @@
     "dev": "sudo docker container run --rm --name myblog -p 8080:80  --volume '$PWD':/usr/share/nginx/html nginx"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "fs.promised": "^3.0.0",
+    "koa": "^2.7.0",
+    "koa-route": "^3.2.0",
+    "koa-static": "^5.0.0"
+  }
 }

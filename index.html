@@ -32,12 +32,9 @@
     <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
 
     <script>
+       
         var editor = monaco.editor.create(document.getElementById('container'), {
-            value: [
-                '# 1',
-                '## 2',
-                '`alert(3)` '
-            ].join('\n'),
+            value: '{{editortext}}',
             language: 'markdown'
         });
 
