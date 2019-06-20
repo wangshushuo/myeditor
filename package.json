@@ -1,18 +1,20 @@
 {
   "name": "myeditor",
   "version": "1.0.0",
-  "description": "",
+  "description": "编辑器",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "sudo docker container run --rm --name myblog -p 8080:80  --volume '$PWD':/usr/share/nginx/html nginx"
   },
   "author": "",
-  "license": "ISC",
+  "repository": "",
+  "license": "persional",
   "dependencies": {
     "fs.promised": "^3.0.0",
     "koa": "^2.7.0",
-    "koa-route": "^3.2.0",
+    "koa-body": "^4.1.0",
+    "koa-router": "^7.4.0",
     "koa-static": "^5.0.0"
   }
 }

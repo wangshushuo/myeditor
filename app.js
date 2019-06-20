@@ -1,34 +1,43 @@
-const fs = require('fs.promised');
-const _ = require('koa-route');
+const fs = require('fs');
+const Router = require('koa-router');
 const serve = require('koa-static');
+const koaBody = require('koa-body');
 const Koa = require('koa');
 const path = require('path');
 const app = new Koa();
+var router = new Router();
 
 
 const static = serve('lib');
 
-const main = async function (ctx, next) {
+const main = function (ctx, next) {
   ctx.response.type = 'html';
-  const editortext = await fs.readFile('./index.html', 'utf8');
-  const bolgtext = await fs.readFile('./hello.md', 'utf8');
-  const a = editortext.replace('{{editortext}}', bolgtext)
+  const editortext = fs.readFileSync('./index.html', 'utf8');
+  const bolgtext = fs.readFileSync('./hello.md', 'utf8');
+  const a = editortext.replace('"editortext"', JSON.stringify(bolgtext.split('\n')))
   ctx.response.body = a;
+  next();
 };
 
-const get = async function (ctx, next) {
+const get = function (ctx, next) {
   ctx.response.type = 'text';
-  ctx.response.body = await fs.readFile('./hello.md', 'utf8');
+  ctx.response.body = fs.readFileSync('./hello.md', 'utf8');
+  next();
 };
 
-const show = async function (ctx, next) {
-  ctx.response.type = 'text';
-  ctx.response.body = await fs.readFile('./hello.md', 'utf8');
+const show = function (ctx, next) {
+  fs.writeFileSync('./hello.md', ctx.request.body.value, { encoding: 'utf8' });
+  ctx.response.type = 'application/json';
+  ctx.response.body = ctx.request;
+  next();
 };
+
+router.get('/', main)
+router.get('/get', get)
+router.post('/save', show)
 
 app.use(static);
-app.use(_.get('/', main));
-app.use(_.get('/get', get));
-app.use(_.get('/save', show));
+app.use(koaBody());
+app.use(router.routes()).use(router.allowedMethods());
 
 app.listen(3000);

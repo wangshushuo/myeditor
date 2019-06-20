@@ -6,13 +6,21 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="./monaco-editor/min/vs/editor/editor.main.css">
     <style>
+        .switch.checked::after {
+            content: "⚫️";
+        }
+
+        .switch::after {
+            content: "⚪️";
+        }
+
         body {
             margin: 0.6vh 1vh;
         }
 
         .editorcontainer {
             position: fixed;
-            top: 5vh;
+            top: 30px;
             left: 0;
             width: 100vw;
             height: 95vh;
@@ -23,7 +31,10 @@
 </head>
 
 <body>
-    <div><button onclick="save()">save</button></div>
+    <div>
+        <button onclick="save()">save</button>
+        <label class="switch"><input type="checkbox" id="switch" /></label>
+    </div>
     <div id="container" class="editorcontainer"></div>
 
     <script>var require = { paths: { 'vs': './monaco-editor/min/vs' } };</script>
@@ -32,10 +43,38 @@
     <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
 
     <script>
-       
+        const themeswtich = document.querySelector('.switch');
+        themeswtich.addEventListener('change', () => {
+            themeswtich.classList.toggle('checked');
+            if (themeswtich.querySelector('input').checked === true) {
+                monaco.editor.setTheme('vs');
+            } else {
+                monaco.editor.setTheme('vs-dark');
+            }
+        }, false);
+
+        var text = "editortext";
+
         var editor = monaco.editor.create(document.getElementById('container'), {
-            value: '{{editortext}}',
-            language: 'markdown'
+            value: text.join('\n'),
+            language: 'markdown',
+            theme: 'vs-dark',
+        });
+
+        editor.addAction({
+            id: 'my-save',
+            label: 'save',
+            keybindings: [
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+            ],
+            precondition: null,
+            keybindingContext: null,
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.5,
+            run: function (ed) {
+                save();
+                return null;
+            }
         });
 
         // 快捷键--F9，添加一个代码块，或者将选中目标变为代码块 
@@ -56,6 +95,15 @@
 
         function save() {
             const value = editor.getValue();
+            fetch('/save', {
+                body: JSON.stringify({ value }),
+                headers: {
+                    'content-type': 'application/json'
+                },
+                method: 'POST',
+            })
+                .then(res => res.json())
+                .then(res => console.log(res))
         }
 
     </script>

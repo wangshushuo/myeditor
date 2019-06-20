@@ -27,3 +27,5 @@ sudo apt-get update
 sudo apt-get install -y nvidia-docker2=2.0.3+docker18.09.1-1 nvidia-container-runtime=2.0.0+docker18.08.1-1
 sudo pkill -SIGHUP dockerd
 ```
+666
+777
