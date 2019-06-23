@@ -1,8 +1,5 @@
-FROM nginx
-# COPY ./public /usr/share/nginx/html
-COPY ./certs /etc/nginx
-COPY ./nginx_conf /etc/nginx
-# FROM nginx
-# COPY ./public /usr/share/nginx/html
-# COPY ./certs /etc/nginx
-# COPY ./nginx_conf /etc/nginx
+FROM node:11.4
+COPY . /app
+WORKDIR /app
+EXPOSE 3000
+CMD node app.js

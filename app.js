@@ -13,7 +13,7 @@ const static = serve('lib');
 const main = function (ctx, next) {
   ctx.response.type = 'html';
   const editortext = fs.readFileSync('./index.html', 'utf8');
-  const bolgtext = fs.readFileSync('./hello.md', 'utf8');
+  const bolgtext = fs.readFileSync('./blog/hello.md', 'utf8');
   const a = editortext.replace('"editortext"', JSON.stringify(bolgtext.split('\n')))
   ctx.response.body = a;
   next();
@@ -21,14 +21,23 @@ const main = function (ctx, next) {
 
 const get = function (ctx, next) {
   ctx.response.type = 'text';
-  ctx.response.body = fs.readFileSync('./hello.md', 'utf8');
+  ctx.response.body = fs.readFileSync('./blog/hello.md', 'utf8');
   next();
 };
 
 const show = function (ctx, next) {
-  fs.writeFileSync('./hello.md', ctx.request.body.value, { encoding: 'utf8' });
+	let body = 'ok';
+	let status = 200;
+	try{
+  fs.writeFileSync('./blog/hello.md', ctx.request.body.value, { encoding: 'utf8' });
+	} catch(err) {
+		body = err;
+		status = 333;
+	}
   ctx.response.type = 'application/json';
-  ctx.response.body = ctx.request;
+  ctx.response.body = body;
+	ctx.response.status = status;
+	
   next();
 };
 
@@ -37,6 +46,7 @@ router.get('/get', get)
 router.post('/save', show)
 
 app.use(static);
+app.use(serve('blog'));
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());
 
