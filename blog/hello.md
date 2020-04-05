@@ -10,7 +10,6 @@ categories:
 - VIM
 category:
 - 前端123
-
 ---
 ## tensorflow
 系统ubuntu 18.04，显卡Gtx950，驱动390。 

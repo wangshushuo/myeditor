@@ -26,18 +26,18 @@ const get = function (ctx, next) {
 };
 
 const show = function (ctx, next) {
-	let body = 'ok';
-	let status = 200;
-	try{
-  fs.writeFileSync('./blog/hello.md', ctx.request.body.value, { encoding: 'utf8' });
-	} catch(err) {
-		body = err;
-		status = 333;
-	}
+  let body = 'ok';
+  let status = 200;
+  try {
+    fs.writeFileSync('./blog/hello.md', ctx.request.body.value, { encoding: 'utf8' });
+  } catch (err) {
+    body = err;
+    status = 333;
+  }
   ctx.response.type = 'application/json';
   ctx.response.body = body;
-	ctx.response.status = status;
-	
+  ctx.response.status = status;
+
   next();
 };
 
