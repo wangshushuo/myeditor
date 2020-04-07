@@ -4,6 +4,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="./monaco-editor/min/vs/editor/editor.main.css">
     <style>
         .switch.checked::after {
@@ -43,38 +44,38 @@
     </div>
     <div class="body">
         <div id="container" class="editorcontainer"></div>
-        <div class="blog-meta">
+        <div class="blog-meta" id="app">
             <label class="">
                 <span>标题</span>
-                <input type="text" />
+                <input type="text" v-bind:value="blogMeta.title" />
             </label>
             <label class="">
                 <span>url:</span>
-                <input type="text" id="" />
+                <input type="text" v-bind:value="blogMeta.url" />
             </label>
             <label class="">
                 <span>作者</span>
-                <input type="text" value="王书硕" />
+                <input type="text" v-bind:value="blogMeta.author" />
             </label>
             <div>
                 <label for="create_time">创建实践</label>
-                <input type="text" name="create_time" id="create_time">
+                <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.date">
             </div>
             <div>
                 <label for="create_time">修改时间</label>
-                <input type="text" name="create_time" id="create_time">
+                <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.lastmod">
             </div>
             <div>
                 <label for="create_time">显示目录</label>
-                <input type="text" name="create_time" id="create_time">
+                <input type="checkbox" name="create_time" id="create_time" v-bind:checked="blogMeta.toc?'checked':''">
             </div>
             <div>
                 <label for="create_time">介绍</label>
-                <input type="text" name="create_time" id="create_time">
+                <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.summary">
             </div>
             <div>
                 <label for="create_time">分类</label>
-                <input type="text" name="create_time" id="create_time">
+                <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.categories">
             </div>
             <button>发布</button>
         </div>
@@ -86,6 +87,38 @@
     <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
 
     <script>
+        const GITHUB_ACCESS_TOKEN = "be723071de74353ea07d5707cf6ebe4af121fa41";
+        // fetch('https://api.github.com/user/repos', {
+        //     headers: {
+        //         "Authorization": "token " + GITHUB_ACCESS_TOKEN,
+        //         'user-agent': 'Mozilla/4.0 MDN Example',
+        //         'content-type': 'application/json'
+        //     },
+        //     method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        // })
+        //     .then(res => res.json())
+        //     .then(res => console.log(res))
+
+// 创建一个文件
+        fetch('https://api.github.com/repos/wss1942/wss1942-1/contents/123.md', {
+            headers: {
+                "Authorization": "token " + GITHUB_ACCESS_TOKEN,
+                'user-agent': 'Mozilla/4.0 MDN Example',
+                'content-type': 'application/json'
+            },
+            method: 'PUT',
+            body: JSON.stringify({
+                "message": "my commit message",
+                "committer": {
+                    "name": "Monalisa Octocat",
+                    "email": "octocat@github.com"
+                },
+                "content": "bXkgbmV3IGZpbGUgY29udGVudHM="
+            })
+        }).then(res => res.json())
+            .then(res => console.log(res))
+
+
         const themeswtich = document.querySelector('.switch');
         themeswtich.addEventListener('change', () => {
             themeswtich.classList.toggle('checked');
@@ -98,8 +131,14 @@
 
         var text = "editortext";
         const [blogMeta, blogBody] = getBlogMeta(text);
-        const aa = convertYaml2Bbject(blogMeta);
-        console.log(aa);
+        const blogMetaObject = convertYaml2Bbject(blogMeta);
+        console.log(blogMetaObject);
+        var app = new Vue({
+            el: '#app',
+            data: {
+                blogMeta: blogMetaObject
+            }
+        })
 
         var editor = monaco.editor.create(document.getElementById('container'), {
             value: blogBody.join('\n'),
@@ -165,7 +204,7 @@
             } catch (error) {
                 alert("内容错误，没有找到结尾的---")
             }
-            const blogMeta = blogContentArray.slice(FIRST_LINE+1, END_LINE-1);
+            const blogMeta = blogContentArray.slice(FIRST_LINE + 1, END_LINE - 1);
             const blogBody = blogContentArray.slice(END_LINE);
             return [blogMeta, blogBody];
         }
@@ -211,11 +250,30 @@
             }
         }
         function convertYaml2Bbject(metas) {
-            return metas.map(item => isKeyThenSplit(item));
+            const typedMetaLine = metas.map(item => isKeyThenSplit(item));
+            let currentArrayName = "";
+            return typedMetaLine.reduce((memo, item, index) => {
+                switch (item.type) {
+                    case "nameAndValue":
+                        memo[item.name] = item.value;
+                        if (item.name === 'toc') {
+                            memo['toc'] = item.value === 'true';
+                        }
+                        break;
+                    case "arrayName":
+                        currentArrayName = item.name;
+                        memo[item.name] = [];
+                        break;
+                    case "arrayItem":
+                        memo[currentArrayName].push(item.value)
+                        break;
+                    default:
+                        break;
+                }
+                return memo;
+            }, {})
+            return
         }
-
     </script>
-
 </body>
-
 </html>

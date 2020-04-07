@@ -1,15 +1,15 @@
 ---
-title: docker
-author: azu
-type: post
-date: 2019-06-06T01:47:46+00:00
-url: /docker.html
-description: 前端789
+title: MySQL
+url: /MySQL.html
+author: 王书硕
+date: 2020-04-02T22:24:03+08:00
+lastmod : 2020-04-02T22:24:03+08:00
+toc: true
+summary: 这是一个介绍
 categories:
-- Development
-- VIM
-category:
-- 前端123
+- api
+- 后端
+- mysql
 ---
 ## tensorflow
 系统ubuntu 18.04，显卡Gtx950，驱动390。 
