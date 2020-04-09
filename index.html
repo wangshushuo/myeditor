@@ -87,6 +87,34 @@
     <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
 
     <script>
+        class GithubAPI {
+            GITHUB_ACCESS_TOKEN = "be723071de74353ea07d5707cf6ebe4af121fa41";
+            OWNER = "wss1942";
+            REPO = "wss1942";
+            HOST = "https://api.github.com"
+            constructor(file_path) {
+                this.url = `${this.HOST}/repos/${this.OWNER}/${this.REPO}/contents/${file_path}`
+            }
+            create() {
+                fetch('https://api.github.com/repos/wss1942/wss1942-1/contents/123.md', {
+                    headers: {
+                        "Authorization": "token " + GITHUB_ACCESS_TOKEN,
+                        'user-agent': 'Mozilla/4.0 MDN Example',
+                        'content-type': 'application/json'
+                    },
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        "message": "my commit message",
+                        "committer": {
+                            "name": "wangshushuo",
+                            "email": "wangshushuo@qq.com"
+                        },
+                        "content": "bXkgbmV3IGZpbGUgY29udGVudHM="
+                    })
+                }).then(res => res.json())
+                    .then(res => console.log(res))
+            }
+        }
         const GITHUB_ACCESS_TOKEN = "be723071de74353ea07d5707cf6ebe4af121fa41";
         // fetch('https://api.github.com/user/repos', {
         //     headers: {
@@ -99,7 +127,7 @@
         //     .then(res => res.json())
         //     .then(res => console.log(res))
 
-// 创建一个文件
+        // 创建一个文件
         fetch('https://api.github.com/repos/wss1942/wss1942-1/contents/123.md', {
             headers: {
                 "Authorization": "token " + GITHUB_ACCESS_TOKEN,
@@ -110,8 +138,8 @@
             body: JSON.stringify({
                 "message": "my commit message",
                 "committer": {
-                    "name": "Monalisa Octocat",
-                    "email": "octocat@github.com"
+                    "name": "wangshushuo",
+                    "email": "wangshushuo@qq.com"
                 },
                 "content": "bXkgbmV3IGZpbGUgY29udGVudHM="
             })
@@ -276,4 +304,5 @@
         }
     </script>
 </body>
+
 </html>
