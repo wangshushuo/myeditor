@@ -8,7 +8,6 @@ const app = new Koa();
 var router = new Router();
 
 
-const static = serve('lib');
 
 const main = function (ctx, next) {
   ctx.response.type = 'html';
@@ -45,7 +44,8 @@ router.get('/', main)
 router.get('/get', get)
 router.post('/save', show)
 
-app.use(static);
+app.use(serve('./lib'));
+app.use(serve('./src'));
 app.use(serve('blog'));
 app.use(koaBody());
 app.use(router.routes()).use(router.allowedMethods());

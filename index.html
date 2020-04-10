@@ -38,7 +38,7 @@
 
 <body>
   <div>
-    <button onclick="save()">save</button>
+    <button id="save">save</button>
     <label class="switch"><input type="checkbox" id="switch" /></label>
     <button>a</button>
   </div>
@@ -47,35 +47,23 @@
     <div class="blog-meta" id="app">
       <label class="">
         <span>标题</span>
-        <input type="text" v-bind:value="blogMeta.title" />
+        <input type="text" v-model="blogMeta.title" />
       </label>
       <label class="">
         <span>url:</span>
-        <input type="text" v-bind:value="blogMeta.url" />
+        <input type="text" v-model="blogMeta.url" />
       </label>
-      <label class="">
-        <span>作者</span>
-        <input type="text" v-bind:value="blogMeta.author" />
-      </label>
-      <div>
-        <label for="create_time">创建实践</label>
-        <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.date">
-      </div>
-      <div>
-        <label for="create_time">修改时间</label>
-        <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.lastmod">
-      </div>
       <div>
         <label for="create_time">显示目录</label>
         <input type="checkbox" name="create_time" id="create_time" v-bind:checked="blogMeta.toc?'checked':''">
       </div>
       <div>
         <label for="create_time">介绍</label>
-        <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.summary">
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.summary">
       </div>
       <div>
         <label for="create_time">分类</label>
-        <input type="text" name="create_time" id="create_time" v-bind:value="blogMeta.categories">
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.categories">
       </div>
       <button>发布</button>
     </div>
@@ -86,67 +74,10 @@
   <script src="./monaco-editor/min/vs/editor/editor.main.nls.js"></script>
   <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
 
-  <script>
-    class GithubAPI {
-      GITHUB_ACCESS_TOKEN = "be723071de74353ea07d5707cf6ebe4af121fa41";
-      OWNER = "wss1942";
-      REPO = "wss1942-1";
-      HOST = "https://api.github.com"
-      constructor(file_path) {
-        // curd使用一样的url，method不同，update比create多了sha字段
-        this.url = `${this.HOST}/repos/${this.OWNER}/${this.REPO}/contents/${file_path}`
-      }
-      headers = {
-        "Authorization": "token " + this.GITHUB_ACCESS_TOKEN,
-        'user-agent': 'Mozilla/4.0 MDN Example',
-        'content-type': 'application/json'
-      };
-      async create(content) {
-        fetch(this.url, {
-          headers: this.headers,
-          method: 'PUT',
-          body: JSON.stringify({
-            "message": "my commit message",
-            "committer": {
-              "name": "wangshushuo",
-              "email": "wangshushuo@qq.com"
-            },
-            "content": window.btoa(content),
-          })
-        }).then(res => res.json())
-          .then(res => console.log(res))
-      }
-      async update(content) {
-        fetch(this.url, {
-          headers: this.headers,
-          method: 'PUT',
-          body: JSON.stringify({
-            "message": "my commit message",
-            "committer": {
-              "name": "wangshushuo",
-              "email": "wangshushuo@qq.com"
-            },
-            "content": window.btoa(content),
-            "sha": this.sha
-          })
-        }).then(res => res.json())
-          .then(res => console.log(res))
-      }
-      read = async function read() {
-        fetch(this.url, {
-          headers: this.headers,
-          method: 'GET'
-        }).then(res => res.json())
-          .then(res => {
-            this.file = res;
-            this.sha = res.sha;
-            this.content = window.atob(res.content)
-          })
-      }
-    }
-
-    const api = new GithubAPI('123.md');
-    await api.read();
+  <script type="module">
+    import GithubAPI from "./GithubAPI.js";
+    import { getBlogMeta, convertYaml, deConvertYaml } from "./Yaml.js";
+    import Editor from './Editor.js'
 
     const themeswtich = document.querySelector('.switch');
     themeswtich.addEventListener('change', () => {
@@ -158,151 +89,31 @@
       }
     }, false);
 
-    var text = api.content;
-    const [blogMeta, blogBody] = getBlogMeta(text);
-    const blogMetaObject = convertYaml2Bbject(blogMeta);
-    console.log(blogMetaObject);
-    var app = new Vue({
-      el: '#app',
-      data: {
-        blogMeta: blogMetaObject
-      }
-    })
-
-    var editor = monaco.editor.create(document.getElementById('container'), {
-      value: blogBody.join('\n'),
-      language: 'markdown',
-      theme: 'vs-dark',
-    });
-
-    editor.addAction({
-      id: 'my-save',
-      label: 'save',
-      keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
-      ],
-      precondition: null,
-      keybindingContext: null,
-      contextMenuGroupId: 'navigation',
-      contextMenuOrder: 1.5,
-      run: function (ed) {
-        save();
-        return null;
-      }
-    });
-
-    // 快捷键--F9，添加一个代码块，或者将选中目标变为代码块 
-    var myBinding = editor.addCommand(monaco.KeyCode.F9, function () {
-      const selection = editor.getSelection();
-      if (selection.isEmpty()) {
-        const { column, lineNumber } = editor.getPosition()
-        editor.setValue(editor.getValue() + '\n```\n\n```')
-        editor.setPosition({ column: 1, lineNumber: lineNumber + 2 })
-      } else {
-        const s = { endColumn, endLineNumber, startColumn, startLineNumber } = editor.getSelection();
-        const selectionText = editor.getModel().getValueInRange(s)
-        const { column, lineNumber } = editor.getPosition()
-        editor.setValue(editor.getValue().replace(selectionText, '```\n' + selectionText + '\n```'))
-        editor.setPosition({ column: 4, lineNumber: startColumn })
-      }
-    });
-
-    function save() {
-      const value = editor.getValue();
-      fetch('/save', {
-        body: JSON.stringify({ value }),
-        headers: {
-          'content-type': 'application/json'
-        },
-        method: 'POST',
+    (async () => {
+      const api = new GithubAPI('content/posts/test.md');
+      await api.read()
+      var text = api.content.split('\n');
+      const [blogMeta, blogBody] = getBlogMeta(text);
+      const { editor } = new Editor(blogBody);
+      const metaElement = setMeta(blogMeta);
+      
+      document.querySelector("#save").addEventListener('click', () => {
+        const content = editor.getValue();
+        const metaArray = deConvertYaml(metaElement.blogMeta);
+        const metaString = metaArray.join('\n');
+        api.update(metaString+'\n'+content)
       })
-        .then(res => res.json())
-        .then(res => console.log(res))
-    }
-    function isEdge(str) {
-      return /^---/.test(str);
-    }
-    function getBlogMeta(blogContentArray) {
-      if (!Array.isArray(blogContentArray)) return;
-      if (blogContentArray.length === 0) return;
-      const FIRST_LINE = 0;
-      if (!isEdge(blogContentArray[FIRST_LINE])) return;
-      let END_LINE = 1;
-      try {
-        END_LINE = findMetaEnd(blogContentArray);
-      } catch (error) {
-        alert("内容错误，没有找到结尾的---")
-      }
-      const blogMeta = blogContentArray.slice(FIRST_LINE + 1, END_LINE - 1);
-      const blogBody = blogContentArray.slice(END_LINE);
-      return [blogMeta, blogBody];
-    }
-    function findMetaEnd(blogContentArray) {
-      let i = 1;
-      let max = blogContentArray.length;
-      while (i < max) {
-        if (isEdge(blogContentArray[i])) break;
-        i++;
-      }
-      if (i === max) throw new Error("没有找到结尾的---")
-      return i + 1;
-    }
-    function getItemContent(content) {
-      const reg = /^( *- *)([^ ]+)/;
-      const match = content.match(reg);
-      if (!match) return "";
-      if (!Array.isArray(match)) return "";
-      if (match.length === 3) {
-        return match[2];
-      } else {
-        return "";
-      }
-    }
-    function arrayItem(content) {
-      return { type: 'arrayItem', value: getItemContent(content) }
-    }
-    function isKeyThenSplit(lineContent) {
-      const match = lineContent.match(/^(\w+) *: *(.*)/);
-      if (!Array.isArray(match)) {
-        return arrayItem(lineContent);
-      }
-      if (match[2] === "") {
-        return {
-          type: "arrayName",
-          name: match[1],
+    })()
+
+    function setMeta(blogMeta) {
+      return new Vue({
+        el: '#app',
+        data: {
+          blogMeta: convertYaml(blogMeta)
         }
-      }
-      return {
-        type: "nameAndValue",
-        name: match[1],
-        value: match[2]
-      }
+      })
     }
-    function convertYaml2Bbject(metas) {
-      const typedMetaLine = metas.map(item => isKeyThenSplit(item));
-      let currentArrayName = "";
-      return typedMetaLine.reduce((memo, item, index) => {
-        switch (item.type) {
-          case "nameAndValue":
-            memo[item.name] = item.value;
-            if (item.name === 'toc') {
-              memo['toc'] = item.value === 'true';
-            }
-            break;
-          case "arrayName":
-            currentArrayName = item.name;
-            memo[item.name] = [];
-            break;
-          case "arrayItem":
-            memo[currentArrayName].push(item.value)
-            break;
-          default:
-            break;
-        }
-        return memo;
-      }, {})
-      return
-    }
+
   </script>
 </body>
 
