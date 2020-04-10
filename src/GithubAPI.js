@@ -1,5 +1,6 @@
 export default class GithubAPI {
-  GITHUB_ACCESS_TOKEN = "be723071de74353ea07d5707cf6ebe4af121fa41";
+  // token wss1942
+  GITHUB_ACCESS_TOKEN = "20b50fa9387a8fbbc3a073f297dbe80c0bd14b45";
   OWNER = "wss1942";
   REPO = "wss1942-1";
   HOST = "https://api.github.com"
