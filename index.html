@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <link rel="stylesheet" data-name="vs/editor/editor.main" href="./monaco-editor/min/vs/editor/editor.main.css">
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
   <style>
     .switch.checked::after {
       content: "⚫️";
@@ -69,15 +69,15 @@
     </div>
   </div>
 
-  <script>var require = { paths: { 'vs': './monaco-editor/min/vs' } };</script>
-  <script src="./monaco-editor/min/vs/loader.js"></script>
-  <script src="./monaco-editor/min/vs/editor/editor.main.nls.js"></script>
-  <script src="./monaco-editor/min/vs/editor/editor.main.js"></script>
+  <script>var require = { paths: { 'vs': './lib/monaco-editor/min/vs' } };</script>
+  <script src="./lib/monaco-editor/min/vs/loader.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.js"></script>
 
   <script type="module">
-    import GithubAPI from "./GithubAPI.js";
-    import { getBlogMeta, convertYaml, deConvertYaml } from "./Yaml.js";
-    import Editor from './Editor.js'
+    import GithubAPI from "./src/GithubAPI.js";
+    import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
+    import Editor from './src/Editor.js'
 
     const themeswtich = document.querySelector('.switch');
     themeswtich.addEventListener('change', () => {
