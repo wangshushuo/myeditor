@@ -4,18 +4,11 @@
   "description": "编辑器",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "sudo docker container run --rm --name myblog -p 8080:80  --volume '$PWD':/usr/share/nginx/html nginx"
-  },
+    "test": "echo \"Error: no test specified\" && exit 1"},
   "author": "",
   "repository": "",
   "license": "persional",
   "dependencies": {
-    "fs.promised": "^3.0.0",
-    "koa": "^2.7.0",
-    "koa-body": "^4.1.0",
-    "koa-router": "^7.4.0",
-    "koa-static": "^5.0.0"
   },
   "devDependencies": {
     "cz-conventional-changelog": "^3.1.0"
