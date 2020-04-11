@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script>
+    const token = localStorage.getItem('personal_access_token');
+    if (token) {
+      location.href = "/";
+    }
+  </script>
+</head>
+
+<body>
+  <div>
+    <p>本系统基于 Github API，需要一个你的 Github personal access token 才能进行工作。</p>
+    <div>
+      <label for="access_token">Access Token：</label>
+      <input type="text" id="access_token" placeholder="请填写 access token" />
+      <button id="save_token">保存token，查看博客</button>
+    </div>
+    <p>Personal access tokens 会保存在浏览器的localstorage中。</p>
+  </div>
+  <script>
+    document.querySelector("#save_token").addEventListener('click', () => {
+      const access_token = document.querySelector("#access_token").value;
+      if(access_token){
+        localStorage.setItem('personal_access_token', access_token);
+        location.href="/"
+      } else {
+        alert("没有输入 access token 。")
+      }
+    })
+  </script>
+</body>
+
+</html>

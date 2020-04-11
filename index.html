@@ -4,6 +4,12 @@
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script>
+    const token = localStorage.getItem('personal_access_token');
+    if (!token) {
+      location.href = "/login.html";
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
   <style>
@@ -92,6 +98,7 @@
     (async () => {
       const api = new GithubAPI('content/posts/test.md');
       await api.read()
+      api.repos();
       var text = api.content.split('\n');
       const [blogMeta, blogBody] = getBlogMeta(text);
       const { editor } = new Editor(blogBody);
