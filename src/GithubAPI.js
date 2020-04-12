@@ -1,6 +1,6 @@
 export default class GithubAPI {
-  // token wss1942
-  GITHUB_ACCESS_TOKEN = "20b50fa9387a8fbbc3a073f297dbe80c0bd14b45";
+  // token wss1942 
+  GITHUB_ACCESS_TOKEN = window.localStorage.getItem('personal_access_token');
   OWNER = "wss1942";
   REPO = "wss1942-1";
   HOST = "https://api.github.com"
@@ -14,6 +14,18 @@ export default class GithubAPI {
     'content-type': 'application/json',
     'Accept': 'application/vnd.github.v3+json'
   };
+  async repos() {
+    return fetch(this.HOST + '/users/wss1942/repos?page=0&per_page=50&affiliation=owner', {
+      headers: this.headers,
+      method: 'GET'
+    }).then(res => res.json())
+  }
+  async blogs(owner,repo){
+    return fetch(`${this.HOST}/repos/${owner}/${repo}/contents/${'content/posts'}`, {
+      headers: this.headers,
+      method: 'GET'
+    }).then(res => res.json())
+  }
   async create(content) {
     fetch(this.url, {
       headers: this.headers,

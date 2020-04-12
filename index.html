@@ -84,6 +84,7 @@
     import GithubAPI from "./src/GithubAPI.js";
     import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
     import Editor from './src/Editor.js'
+    import query from './src/Query.js';
 
     const themeswtich = document.querySelector('.switch');
     themeswtich.addEventListener('change', () => {
@@ -96,9 +97,8 @@
     }, false);
 
     (async () => {
-      const api = new GithubAPI('content/posts/test.md');
+      const api = new GithubAPI(query.path);
       await api.read()
-      api.repos();
       var text = api.content.split('\n');
       const [blogMeta, blogBody] = getBlogMeta(text);
       const { editor } = new Editor(blogBody);

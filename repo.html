@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script>
+    const token = localStorage.getItem('personal_access_token');
+    if (!token) {
+      location.href = "/login.html";
+    }
+  </script>
+  <title>仓库列表</title>
+</head>
+
+<body>
+  <div id="app">
+    <p>选择一个仓库</p>
+    <table>
+      <thead>
+        <tr>
+          <td>名字</td>
+          <td>fork</td>
+          <td>打开</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="repo in repos">
+          <td>{{repo.name}}</td>
+          <td>{{repo.fork?'yes':'no'}}</td>
+          <td><a v-bind:href=`/contents.html?owner=${repo.owner.login}&repo_name=${repo.name}`>打开博客项目</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script type="module">
+    import GithubAPI from "./src/GithubAPI.js";
+    const api = new GithubAPI('');
+    api.repos().then(repos => {
+      console.log(repos);
+
+      new Vue({
+        el: '#app',
+        data: {
+          repos: repos.sort((a, b) => a.fork - b.fork)
+        }
+      })
+    });
+  </script>
+</body>
+
+</html>
