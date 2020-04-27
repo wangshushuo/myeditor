@@ -4,30 +4,84 @@ export default class GithubAPI {
   OWNER = "wss1942";
   REPO = "wss1942-1";
   HOST = "https://api.github.com"
-  constructor(file_path) {
-    // curd使用一样的url，method不同，update比create多了sha字段
-    this.url = `${this.HOST}/repos/${this.OWNER}/${this.REPO}/contents/${file_path}`
-  }
   headers = {
     "Authorization": "token " + this.GITHUB_ACCESS_TOKEN,
     'user-agent': 'Mozilla/4.0 MDN Example',
     'content-type': 'application/json',
     'Accept': 'application/vnd.github.v3+json'
   };
-  async repos() {
-    return fetch(this.HOST + '/users/wss1942/repos?page=0&per_page=50&affiliation=owner', {
+  constructor() {
+    // curd使用一样的crud_url，method不同，update比create多了sha字段
+  }
+  async init() {
+    return fetch(`${this.HOST}/user`, {
       headers: this.headers,
       method: 'GET'
-    }).then(res => res.json())
+    }).then(r => r.json())
+      .then(user => {
+        this.OWNER = user.name;
+        this.repo = new Repo(this.HOST, this.OWNER, this.headers);
+      })
   }
-  async blogs(owner,repo){
+
+  selectRepo(repo) {
+    this.crud_url = `${this.HOST}/repos/${this.OWNER}/${repo}/contents/${file_path}`;
+  }
+  async repos() {
+    return this.repo.allRepo();
+  }
+  async blogs(owner,repo) {
     return fetch(`${this.HOST}/repos/${owner}/${repo}/contents/${'content/posts'}`, {
       headers: this.headers,
       method: 'GET'
     }).then(res => res.json())
   }
+}
+
+// 使用utf-8字符集进行base64编码
+function utoa(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+// 使用utf-8字符集解析base64字符串 
+function atou(str) {
+  return decodeURIComponent(escape(window.atob(str)));
+}
+
+class Repo {
+  constructor(host, owner, headers) {
+    this.HOST = host;
+    this.OWNER = owner;
+    this.headers = headers;
+  }
+  async allRepo() {
+    const page = 0;
+    const per_page = 50;
+    return fetch(this.HOST + `/users/${this.OWNER}/repos?page=${page}&per_page=${per_page}&affiliation=owner`, {
+      headers: this.headers,
+      method: 'GET'
+    }).then(res => res.json())
+  }
+  async getPosts(owner, repo) {
+    return fetch(`${this.HOST}/repos/${owner}/${repo}/contents/${'content/posts'}`, {
+      headers: this.headers,
+      method: 'GET'
+    }).then(res => res.json())
+  }
+}
+
+export class Post extends GithubAPI {
+  constructor(owner, repo_name, file_path) {
+    super();
+    this.crud_url= `${this.HOST}/repos/${owner}/${repo_name}/contents/${file_path}`
+  }
+  async getAllPosts() {
+    return fetch(`${this.HOST}/repos/${this.OWNER}/${repo}/contents/${'content/posts'}`, {
+      headers: this.headers,
+      method: 'GET'
+    }).then(res => res.json())
+  }
   async create(content) {
-    fetch(this.url, {
+    fetch(this.crud_url, {
       headers: this.headers,
       method: 'PUT',
       body: JSON.stringify({
@@ -42,7 +96,7 @@ export default class GithubAPI {
       .then(res => console.log(res))
   }
   async update(content) {
-    fetch(this.url, {
+    fetch(this.crud_url, {
       headers: this.headers,
       method: 'PUT',
       body: JSON.stringify({
@@ -63,7 +117,7 @@ export default class GithubAPI {
       })
   }
   async read() {
-    return fetch(this.url, {
+    return fetch(this.crud_url, {
       headers: this.headers,
       method: 'GET'
     }).then(res => res.json())
@@ -74,13 +128,4 @@ export default class GithubAPI {
         return this.content;
       })
   }
-}
-
-// 使用utf-8字符集进行base64编码
-function utoa(str) {
-  return window.btoa(unescape(encodeURIComponent(str)));
-}
-// 使用utf-8字符集解析base64字符串 
-function atou(str) {
-  return decodeURIComponent(escape(window.atob(str)));
 }

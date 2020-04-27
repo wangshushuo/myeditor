@@ -28,7 +28,7 @@
         <tr v-for="repo in repos">
           <td>{{repo.name}}</td>
           <td>{{repo.fork?'yes':'no'}}</td>
-          <td><a v-bind:href=`/contents.html?owner=${repo.owner.login}&repo_name=${repo.name}`>打开博客项目</a>
+          <td><a v-bind:href=`/index.html?owner=${repo.owner.login}&repo_name=${repo.name}`>打开博客项目</a>
           </td>
         </tr>
       </tbody>
@@ -38,16 +38,16 @@
   <script type="module">
     import GithubAPI from "./src/GithubAPI.js";
     const api = new GithubAPI('');
-    api.repos().then(repos => {
-      console.log(repos);
-
+    (async () => {
+      await api.init();
+      const repos = await api.repos();
       new Vue({
         el: '#app',
         data: {
           repos: repos.sort((a, b) => a.fork - b.fork)
         }
       })
-    });
+    })()
   </script>
 </body>
 
