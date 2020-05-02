@@ -14,6 +14,11 @@
     }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
   <style>
     .switch.checked::after {
@@ -48,7 +53,10 @@
 <body>
   <div>
     <script type="module" src="./src/Select.js"></script>
-    <x-foo-shadowdom><p>456</p></x-foo-shadowdom>
+    <x-foo-shadowdom>
+      <p>456</p>
+    </x-foo-shadowdom>
+    <div id="like_button_container"></div>
     <button id="save">save</button>
     <label class="switch"><input type="checkbox" id="switch" /></label>
     <button>a</button>
@@ -79,14 +87,14 @@
       <button>发布</button>
     </div>
   </div>
-
+  <script src="./src/button.jsx" type="text/babel"></script>
   <script>var require = { paths: { 'vs': './lib/monaco-editor/min/vs' } };</script>
   <script src="./lib/monaco-editor/min/vs/loader.js"></script>
   <script src="./lib/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
   <script src="./lib/monaco-editor/min/vs/editor/editor.main.js"></script>
 
   <script type="module">
-    import {Post} from "./src/GithubAPI.js";
+    import { Post } from "./src/GithubAPI.js";
     import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
     import Editor from './src/Editor.js'
     import query from './src/Query.js';

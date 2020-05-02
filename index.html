@@ -10,34 +10,48 @@
       location.href = "/login.html";
     }
   </script>
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script> -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/immer/dist/immer.umd.js"></script>
+  <script src="./lib/lodash.core.min.js"></script>
   <title>文章列表</title>
 </head>
 
 <body>
   <div id="app">
-    <ul>
-      <li v-for="content in contents">
-        <!-- 暂时假定都是文件 -->
-        <a v-bind:href="`${baseURL}path=${content.path}`">{{content.type==='file'?'文件':'目录'}}{{content.name}}</a>
-      </li>
-    </ul>
+
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/index.jsx"></script>
+  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/Query.js"></script>
+  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/api.js"></script>
+  <script data-plugins="transform-es2015-modules-umd" type="text/babel">
+    import query from 'Query'
+    import ContentURL from 'index'
+    import api from 'api'
+    console.log(query);
+    const a = new api();
+    (async () => {
+      const repos = await a.repos();
+      let domContainer = document.querySelector('#app');
+      ReactDOM.render(
+        <ContentURL
+          repos={repos}
+          api={a}
+        />,
+        domContainer
+      );
+    })()
+
+  </script>
   <script type="module">
-    import GithubAPI from "./src/GithubAPI.js";
-    import query from './src/Query.js';
-    const api = new GithubAPI();
-    api.blogs(query.owner, query.repo_name).then(contents=>{
-      console.log(contents);
-      // TODO 要将dir中的文件遍历出来，形成一个都文件的列表
-      new Vue({
-        el: '#app',
-        data: {
-          baseURL:`/editor.html${window.location.search}&`,
-          contents: contents.sort((a, b) => a.dir==='dir')
-        }
-      })
-    })
+// import ContentURL from 'index' 
+// import query from './src/Query.js';
+//     console.log(query);
+//     let domContainer = document.querySelector('#app');
+//     ReactDOM.render(e(ContentURL), domContainer);
   </script>
 </body>
 

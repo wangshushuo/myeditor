@@ -3,7 +3,7 @@ export default class GithubAPI {
   GITHUB_ACCESS_TOKEN = window.localStorage.getItem('personal_access_token');
   HOST = "https://api.github.com"
   headers = {
-    "Authorization": "token " + this.GITHUB_ACCESS_TOKEN,
+    "Authorization": "token " + window.localStorage.getItem('personal_access_token'),
     'user-agent': 'Mozilla/4.0 MDN Example',
     'content-type': 'application/json',
     'Accept': 'application/vnd.github.v3+json'
