@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "b": "npx babel --plugins @babel/plugin-transform-react-jsx --watch jsx --out-dir src",
     "a": "npx babel --watch jsx --out-dir src --presets react-app/prod"
   },
   "author": "",
