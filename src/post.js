@@ -1,13 +1,12 @@
 export default class Post {
-  constructor(contentPath) {
-    const HOST = "https://api.github.com"
+  constructor(contentURL) {
     this.headers = {
       "Authorization": "token " + window.localStorage.getItem('personal_access_token'),
       'user-agent': 'Mozilla/4.0 MDN Example',
       'content-type': 'application/json',
       'Accept': 'application/vnd.github.v3+json'
     };
-    this.crud_url = HOST + contentPath
+    this.crud_url = contentURL
   }
   async create(content) {
     fetch(this.crud_url, {
@@ -57,4 +56,13 @@ export default class Post {
         return this.content;
       })
   }
+}
+
+// 使用utf-8字符集进行base64编码
+function utoa(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+// 使用utf-8字符集解析base64字符串 
+function atou(str) {
+  return decodeURIComponent(escape(window.atob(str)));
 }

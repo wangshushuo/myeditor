@@ -4,11 +4,18 @@
   "description": "编辑器",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"},
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "b": "npx babel --plugins @babel/plugin-transform-react-jsx --watch jsx --out-dir src",
+    "a": "npx babel --watch jsx --out-dir src --presets react-app/prod"
+  },
   "author": "",
   "repository": "",
   "license": "persional",
   "dependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/plugin-transform-react-jsx": "^7.9.4",
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2"
   },
   "devDependencies": {
     "cz-conventional-changelog": "^3.1.0"

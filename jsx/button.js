@@ -1,4 +1,5 @@
-'use strict';
+/** @jsxRuntime classic */
+
 const {useState, useEffect} = React;
 function Child(props) {
   const [text, sett] = useState(111);

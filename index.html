@@ -14,44 +14,129 @@
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
   <!-- <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script> -->
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  <script src="https://unpkg.com/immer/dist/immer.umd.js"></script>
-  <script src="./lib/lodash.core.min.js"></script>
-  <title>文章列表</title>
+  <title>myeditor</title>
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
+  <style>
+    .switch.checked::after {
+      content: "⚫️";
+    }
+
+    .switch::after {
+      content: "⚪️";
+    }
+
+    body {
+      margin: 0.6vh 1vh;
+    }
+
+    .body {
+      display: flex;
+    }
+
+    .editorcontainer {
+      width: 80vw;
+      height: 95vh;
+      border: 1px solid grey;
+    }
+
+    .blog-meta {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="app">
-
+  <div id="app"></div>
+  <div class="body">
+    <div id="container" class="editorcontainer"></div>
+    <div class="blog-meta" id="app">
+      <label class="">
+        <span>标题</span>
+        <input type="text" v-model="blogMeta.title" />
+      </label>
+      <label class="">
+        <span>url:</span>
+        <input type="text" v-model="blogMeta.url" />
+      </label>
+      <div>
+        <label for="create_time">显示目录</label>
+        <input type="checkbox" name="create_time" id="create_time" v-bind:checked="blogMeta.toc?'checked':''">
+      </div>
+      <div>
+        <label for="create_time">介绍</label>
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.summary">
+      </div>
+      <div>
+        <label for="create_time">分类</label>
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.categories">
+      </div>
+      <button>发布</button>
+    </div>
   </div>
-  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/index.jsx"></script>
-  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/Query.js"></script>
-  <script data-plugins="transform-es2015-modules-umd" type="text/babel" src="./src/api.js"></script>
-  <script data-plugins="transform-es2015-modules-umd" type="text/babel">
-    import query from 'Query'
-    import ContentURL from 'index'
-    import api from 'api'
-    console.log(query);
-    const a = new api();
+  <script>var require = { paths: { 'vs': './lib/monaco-editor/min/vs' } };</script>
+  <script src="./lib/monaco-editor/min/vs/loader.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+
+  <script type="module">
+    import api from './src/api.js'
+    import Post from "./src/post.js";
+    import Editor from './src/Editor.js'
+    import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
+    import ContentURL from './src/index.js'
+
+    const github = new api();
+
+    async function initEditorAndSetContent(contentURL) {
+      const content = new Post(contentURL);
+      await content.read()
+      var text = content.content.split('\n');
+      const [blogMeta, blogBody] = getBlogMeta(text);
+      const { editor } = new Editor(blogBody);
+      // const metaElement = setMeta(blogMeta);
+
+      document.querySelector("#save").addEventListener('click', () => {
+        const content = editor.getValue();
+        const metaArray = deConvertYaml(metaElement.blogMeta);
+        const metaString = metaArray.join('\n');
+        github.update(metaString + '\n' + content)
+      })
+    }
+    const DEFAULT_PATH = 'content/posts';
+    const getContent = async (repo_full_name, path = DEFAULT_PATH, name = DEFAULT_PATH) => {
+      const contents = await github.content(repo_full_name, path)
+      const isDir = Array.isArray(contents);
+      if (!isDir) {
+        return contents;
+      }
+
+      const childrenPromise = contents.map((content) => {
+        if (content.type === 'dir') {
+          return getContent(repo_full_name, content.path, content.name)
+        } else {
+          return { name: content.name, content };
+        }
+      })
+      const children = await Promise.all(childrenPromise)
+      return { name, content: children };
+    }
+
     (async () => {
-      const repos = await a.repos();
+      const repos = await github.repos();
       let domContainer = document.querySelector('#app');
-      ReactDOM.render(
-        <ContentURL
-          repos={repos}
-          api={a}
-        />,
-        domContainer
-      );
+      const App = React.createElement(
+        ContentURL,
+        {
+          repos,
+          getContent,
+          api: github,
+          onContent: initEditorAndSetContent
+        }
+      )
+      ReactDOM.render(App, domContainer);
     })()
 
-  </script>
-  <script type="module">
-// import ContentURL from 'index' 
-// import query from './src/Query.js';
-//     console.log(query);
-//     let domContainer = document.querySelector('#app');
-//     ReactDOM.render(e(ContentURL), domContainer);
   </script>
 </body>
 
