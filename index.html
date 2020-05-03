@@ -10,34 +10,133 @@
       location.href = "/login.html";
     }
   </script>
-  <title>文章列表</title>
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script> -->
+  <title>myeditor</title>
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
+  <style>
+    .switch.checked::after {
+      content: "⚫️";
+    }
+
+    .switch::after {
+      content: "⚪️";
+    }
+
+    body {
+      margin: 0.6vh 1vh;
+    }
+
+    .body {
+      display: flex;
+    }
+
+    .editorcontainer {
+      width: 80vw;
+      height: 95vh;
+      border: 1px solid grey;
+    }
+
+    .blog-meta {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="app">
-    <ul>
-      <li v-for="content in contents">
-        <!-- 暂时假定都是文件 -->
-        <a v-bind:href="`${baseURL}path=${content.path}`">{{content.type==='file'?'文件':'目录'}}{{content.name}}</a>
-      </li>
-    </ul>
+  <div id="app"></div>
+  <div class="body">
+    <div id="container" class="editorcontainer"></div>
+    <div class="blog-meta" id="app">
+      <label class="">
+        <span>标题</span>
+        <input type="text" v-model="blogMeta.title" />
+      </label>
+      <label class="">
+        <span>url:</span>
+        <input type="text" v-model="blogMeta.url" />
+      </label>
+      <div>
+        <label for="create_time">显示目录</label>
+        <input type="checkbox" name="create_time" id="create_time" v-bind:checked="blogMeta.toc?'checked':''">
+      </div>
+      <div>
+        <label for="create_time">介绍</label>
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.summary">
+      </div>
+      <div>
+        <label for="create_time">分类</label>
+        <input type="text" name="create_time" id="create_time" v-model="blogMeta.categories">
+      </div>
+      <button>发布</button>
+    </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>var require = { paths: { 'vs': './lib/monaco-editor/min/vs' } };</script>
+  <script src="./lib/monaco-editor/min/vs/loader.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+  <script src="./lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+
   <script type="module">
-    import GithubAPI from "./src/GithubAPI.js";
-    import query from './src/Query.js';
-    const api = new GithubAPI();
-    api.blogs(query.owner, query.repo_name).then(contents=>{
-      console.log(contents);
-      // TODO 要将dir中的文件遍历出来，形成一个都文件的列表
-      new Vue({
-        el: '#app',
-        data: {
-          baseURL:`/editor.html${window.location.search}&`,
-          contents: contents.sort((a, b) => a.dir==='dir')
+    import api from './src/api.js'
+    import Post from "./src/post.js";
+    import Editor from './src/Editor.js'
+    import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
+    import ContentURL from './src/index.js'
+
+    const github = new api();
+
+    async function initEditorAndSetContent(contentURL) {
+      const content = new Post(contentURL);
+      await content.read()
+      var text = content.content.split('\n');
+      const [blogMeta, blogBody] = getBlogMeta(text);
+      const { editor } = new Editor(blogBody);
+      // const metaElement = setMeta(blogMeta);
+
+      document.querySelector("#save").addEventListener('click', () => {
+        const content = editor.getValue();
+        const metaArray = deConvertYaml(metaElement.blogMeta);
+        const metaString = metaArray.join('\n');
+        github.update(metaString + '\n' + content)
+      })
+    }
+    const DEFAULT_PATH = 'content/posts';
+    const getContent = async (repo_full_name, path = DEFAULT_PATH, name = DEFAULT_PATH) => {
+      const contents = await github.content(repo_full_name, path)
+      const isDir = Array.isArray(contents);
+      if (!isDir) {
+        return contents;
+      }
+
+      const childrenPromise = contents.map((content) => {
+        if (content.type === 'dir') {
+          return getContent(repo_full_name, content.path, content.name)
+        } else {
+          return { name: content.name, content };
         }
       })
-    })
+      const children = await Promise.all(childrenPromise)
+      return { name, content: children };
+    }
+
+    (async () => {
+      const repos = await github.repos();
+      let domContainer = document.querySelector('#app');
+      const App = React.createElement(
+        ContentURL,
+        {
+          repos,
+          getContent,
+          api: github,
+          onContent: initEditorAndSetContent
+        }
+      )
+      ReactDOM.render(App, domContainer);
+    })()
+
   </script>
 </body>
 

@@ -1,11 +1,9 @@
 export default class GithubAPI {
   // token wss1942 
   GITHUB_ACCESS_TOKEN = window.localStorage.getItem('personal_access_token');
-  OWNER = "wss1942";
-  REPO = "wss1942-1";
   HOST = "https://api.github.com"
   headers = {
-    "Authorization": "token " + this.GITHUB_ACCESS_TOKEN,
+    "Authorization": "token " + window.localStorage.getItem('personal_access_token'),
     'user-agent': 'Mozilla/4.0 MDN Example',
     'content-type': 'application/json',
     'Accept': 'application/vnd.github.v3+json'
@@ -28,10 +26,13 @@ export default class GithubAPI {
     this.crud_url = `${this.HOST}/repos/${this.OWNER}/${repo}/contents/${file_path}`;
   }
   async repos() {
-    return this.repo.allRepo();
+    return fetch(`${this.HOST}/user/repos`, {
+      headers: this.headers,
+      method: 'GET'
+    }).then(r => r.json())
   }
-  async blogs(owner,repo) {
-    return fetch(`${this.HOST}/repos/${owner}/${repo}/contents/${'content/posts'}`, {
+  async content(repo_full_name, path = 'content/posts') {
+    return fetch(`${this.HOST}/repos/${repo_full_name}/contents/${path}`, {
       headers: this.headers,
       method: 'GET'
     }).then(res => res.json())
@@ -47,32 +48,10 @@ function atou(str) {
   return decodeURIComponent(escape(window.atob(str)));
 }
 
-class Repo {
-  constructor(host, owner, headers) {
-    this.HOST = host;
-    this.OWNER = owner;
-    this.headers = headers;
-  }
-  async allRepo() {
-    const page = 0;
-    const per_page = 50;
-    return fetch(this.HOST + `/users/${this.OWNER}/repos?page=${page}&per_page=${per_page}&affiliation=owner`, {
-      headers: this.headers,
-      method: 'GET'
-    }).then(res => res.json())
-  }
-  async getPosts(owner, repo) {
-    return fetch(`${this.HOST}/repos/${owner}/${repo}/contents/${'content/posts'}`, {
-      headers: this.headers,
-      method: 'GET'
-    }).then(res => res.json())
-  }
-}
-
 export class Post extends GithubAPI {
   constructor(owner, repo_name, file_path) {
     super();
-    this.crud_url= `${this.HOST}/repos/${owner}/${repo_name}/contents/${file_path}`
+    this.crud_url = `${this.HOST}/repos/${owner}/${repo_name}/contents/${file_path}`
   }
   async getAllPosts() {
     return fetch(`${this.HOST}/repos/${this.OWNER}/${repo}/contents/${'content/posts'}`, {
