@@ -9,7 +9,7 @@
   },
   "author": "",
   "repository": "",
-  "license": "persional",
+  "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.9.6",
     "@babel/plugin-transform-react-jsx": "^7.9.4",
