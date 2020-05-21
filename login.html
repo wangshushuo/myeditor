@@ -25,9 +25,9 @@
   <script>
     document.querySelector("#save_token").addEventListener('click', () => {
       const access_token = document.querySelector("#access_token").value;
-      if(access_token){
+      if (access_token) {
         localStorage.setItem('personal_access_token', access_token);
-        location.href="/repo.html"
+        location.href = "/index.html"
       } else {
         alert("没有输入 access token 。")
       }

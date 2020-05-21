@@ -94,11 +94,10 @@
       var text = content.content.split('\n');
       const [blogMeta, blogBody] = getBlogMeta(text);
       const { editor } = new Editor(blogBody);
-      // const metaElement = setMeta(blogMeta);
 
       document.querySelector("#save").addEventListener('click', () => {
         const content = editor.getValue();
-        const metaArray = deConvertYaml(metaElement.blogMeta);
+        const metaArray = deConvertYaml(blogMeta);
         const metaString = metaArray.join('\n');
         github.update(metaString + '\n' + content)
       })
