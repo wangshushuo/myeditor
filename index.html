@@ -10,10 +10,11 @@
       location.href = "/login.html";
     }
   </script>
-  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-  <!-- <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <!-- <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script> -->
+  <!-- <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script> -->
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
   <title>myeditor</title>
   <link rel="stylesheet" data-name="vs/editor/editor.main" href="./lib/monaco-editor/min/vs/editor/editor.main.css">
   <style>
@@ -85,23 +86,32 @@
     import Editor from './src/Editor.js'
     import { getBlogMeta, convertYaml, deConvertYaml } from "./src/Yaml.js";
     import ContentURL from './src/index.js'
-
-    const github = new api();
+    
+    const content_url = localStorage.getItem('content_url');
+    if(content_url){
+      initEditorAndSetContent(content_url)
+    }
 
     async function initEditorAndSetContent(contentURL) {
-      const content = new Post(contentURL);
-      await content.read()
-      var text = content.content.split('\n');
+      localStorage.setItem('content_url', contentURL);
+      const post = new Post(contentURL);
+      await post.read()
+      var text = post.content.split('\n');
       const [blogMeta, blogBody] = getBlogMeta(text);
+      const metaVUE = setMeta(blogMeta);
+      // console.log(metaVUE);
+      
       const { editor } = new Editor(blogBody);
 
       document.querySelector("#save").addEventListener('click', () => {
         const content = editor.getValue();
-        const metaArray = deConvertYaml(blogMeta);
+        const metaArray = deConvertYaml(metaVUE.blogMeta);
         const metaString = metaArray.join('\n');
-        github.update(metaString + '\n' + content)
+        post.update(metaString + '\n' + content)
       })
     }
+
+    const github = new api();
     const DEFAULT_PATH = 'content/posts';
     const getContent = async (repo_full_name, path = DEFAULT_PATH, name = DEFAULT_PATH) => {
       const contents = await github.content(repo_full_name, path)
@@ -135,6 +145,16 @@
       )
       ReactDOM.render(App, domContainer);
     })()
+
+    function setMeta(blogMeta) {
+      const meta = convertYaml(blogMeta);
+      return new Vue({
+        el: '#app',
+        data: {
+          blogMeta: meta
+        }
+      })
+    }
 
   </script>
 </body>

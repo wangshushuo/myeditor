@@ -129,8 +129,8 @@ export default function ContentURL(_ref2) {
             alert('请先完成 1. 和 2. ');
             return;
           }
-          console.log(contents.url);
-          onContent(contents.url);
+          // console.log(contents);
+          onContent(contents.url, contents.sha);
         } },
       '3. \u5F00\u59CB\u7F16\u8F91'
     )

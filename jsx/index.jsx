@@ -63,8 +63,8 @@ export default function ContentURL({ repos, getContent, onContent }) {
           alert('请先完成 1. 和 2. ')
           return;
         }
-        console.log(contents.url);
-        onContent(contents.url)
+        // console.log(contents);
+        onContent(contents.url, contents.sha);
       }}>3. 开始编辑</button>
     </p>
   )
